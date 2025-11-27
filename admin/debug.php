@@ -502,6 +502,12 @@ if (file_exists($dbSqlFile)) {
     ];
 }
 
+// Duplicate checks
+$duplicate_tickets_sql = mysqli_query($mysqli, "SELECT ticket_number, COUNT(*) AS count FROM tickets GROUP BY ticket_number HAVING count > 1");
+$duplicate_quotes_sql =  mysqli_query($mysqli, "SELECT quote_number, COUNT(*) AS count FROM quotes GROUP BY quote_number HAVING count > 1");
+$duplicate_invoices_sql =  mysqli_query($mysqli, "SELECT invoice_number, COUNT(*) AS count FROM invoices GROUP BY invoice_number HAVING count > 1");
+
+
 $mysqli->close();
 ?>
 
@@ -757,6 +763,40 @@ $mysqli->close();
                 </tbody>
             </table>
         </div>
+
+        <!-- Duplicated ticket/quote/invoice numbers -->
+        <h3 class="mt-3">Duplicated Numbering</h3>
+        <h4>Tickets</h4>
+        <ul>
+            <?php if (mysqli_num_rows($duplicate_tickets_sql) > 0 ) {
+                while ($row = $duplicate_tickets_sql->fetch_assoc()) {
+                    echo "<li>" . $config_ticket_prefix . nullable_htmlentities($row['ticket_number']) . " (" . $row['count'] . ")" . "</li>";
+                }
+            } else {
+                echo "No duplicate ticket numbers.";
+            } ?>
+        </ul>
+        <h4>Quotes</h4>
+        <ul>
+            <?php if (mysqli_num_rows($duplicate_quotes_sql) > 0 ) {
+                while ($row = $duplicate_quotes_sql->fetch_assoc()) {
+                    echo "<li>" . $config_quote_prefix . nullable_htmlentities($row['quote_number']) . " (" . $row['count'] . ")" . "</li>";
+                }
+            } else {
+                echo "No duplicate quote numbers.";
+            } ?>
+        </ul>
+        <h4>Invoices</h4>
+        <ul>
+            <?php if (mysqli_num_rows($duplicate_invoices_sql) > 0 ) {
+                while ($row = $duplicate_invoices_sql->fetch_assoc()) {
+                    echo "<li>" . $config_invoice_prefix . nullable_htmlentities($row['invoice_number']) . " (" . $row['count'] . ")" . "</li>";
+                }
+            } else {
+                echo "No duplicate invoice numbers.";
+            } ?>
+        </ul>
+
 
     </div>
 
